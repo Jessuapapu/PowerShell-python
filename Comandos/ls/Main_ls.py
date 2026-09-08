@@ -4,17 +4,29 @@ import table2ascii
 from ..Plantilla import Comando
 
 class Comando_ls(Comando):
+    """ 
+        ls [[-Path] <string[]>] [-r] [[-Filter] <string>] [-Include <string[]>] [-Directory]]
+
+        Regex = ^ls (("[a-zA-Z]:\\[\w\\]+")|\*|-r|)( -r|)(( -Filter \*(\.[\w]+|[\w]+\*))|)( -Directory|)$
+
+        ls o dir la misma vaina xd
+    """
 
     def __init__(self, StrArgumento: list):
         super().__init__(StrArgumentos=StrArgumento)
-        """ ls [[-Path] <string[]>] [-r] [[-Filter] <string>] [-Include <string[]>] [-Directory]]"""
+        # ls "C:\Users\Jessua\Documents" -r -Filter *Hola* -Directory
+        # ls * -r -Filter *.Hol -Directory
+        # ls -r -Filter *Hola*
+        # ls -Directory
+        self.Regex = r'^(ls|dir)((( "[a-zA-Z]:\\[\w\\]+")|\*|-r|)( -r|)(( -Filter \*(\.[\w]+|[\w]+\*))|)( -Directory|)|)$'
         try:
-            self.__validacion_argumentos(StrArgumentos=StrArgumento,regex=r'^ls (("[a-zA-Z]:\\[\w\\]+")|\*|-r|)( -r|)(( -Filter \*(\.[\w]+|[\w]+\*))|)( -Directory|)$', 
-            MsjException="Error en los argumentos, Ejemplode uso ls [[-Path] <string[]>] [-r] [[-Filter] <string>] [-Include <string[]>] [-Directory]]")
+            Argumentos = self._validacion_argumentos(StrArgumentos=StrArgumento,regex=self.Regex, 
+            MsjException="Error en los argumentos, Ejemplo de uso ls [[-Path] <string[]>] [-r] [[-Filter] <string>] [-Include <string[]>] [-Directory]]")
+            print(Argumentos)
         except Exception as e:
             print(e)
-            return -1
-
+            
+ 
         
         
         

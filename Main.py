@@ -1,5 +1,5 @@
-import subprocess
-from Comandos.ls.Main_ls import *
+
+from Manager.Manager import ComandosManager
 import os
 
 def main():
@@ -10,8 +10,10 @@ def main():
     disenio = 'PS ' + pathInicial[0]+'\\' + pathInicial[1] + '\\' + pathInicial[2] + '> '
     path = pathInicial[0]+'\\' + pathInicial[1] + '\\' + pathInicial[2]
     while True:
-        comando = input(disenio)
+        Argumentos = input(disenio)
+        ArgumentoComando = Argumentos.split(' ')
+        comando = ComandosManager.desde_string(ArgumentoComando[0])
+        comando.ejecutar(Argumentos)
         
-
 if "__main__":
     main()

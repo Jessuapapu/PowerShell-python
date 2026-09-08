@@ -4,9 +4,11 @@ class Comando():
     def __init__(self, StrArgumentos: str):
         pass
 
-    def __validacion_argumentos(self, StrArgumentos: str, regex: str, MsjException: str):
-        if re.Match(regex,StrArgumentos):
-            return
+    def _validacion_argumentos(self, StrArgumentos: str, regex: str, MsjException: str):
+        Argumentos = re.match(regex,StrArgumentos)
+
+        if Argumentos:
+            return Argumentos.groups()
         
         return self.Excepcion(MsjException)
         

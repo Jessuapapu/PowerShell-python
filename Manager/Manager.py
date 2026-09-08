@@ -1,11 +1,10 @@
 from enum import Enum
 from Comandos.ls import Main_ls
 
-
-
 class ComandosManager(Enum):
-    ls = ('ls', lambda Ruta: Main_ls.listar_archivos(Ruta))
-
+    ls = ('LS', lambda Argumento: Main_ls.Comando_ls(Argumento))
+    dirs = ('DIR', lambda Argumento: Main_ls.Comando_ls(Argumento))
+    cd = ('CD')
     def __init__(self, codigo, funcion):
         self.codigo = codigo
         self.ejecutar = funcion
@@ -20,3 +19,4 @@ class ComandosManager(Enum):
         
         # Lanza un error genérico o personalizado si no existe
         raise ValueError(f"Operación no soportada: {string_codigo}")
+
