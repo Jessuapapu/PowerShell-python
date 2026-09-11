@@ -4,7 +4,7 @@ from Comandos.ls import Main_ls
 class ComandosManager(Enum):
     ls = ('LS', lambda Argumento: Main_ls.Comando_ls(Argumento))
     dirs = ('DIR', lambda Argumento: Main_ls.Comando_ls(Argumento))
-    cd = ('CD')
+    # cd = ('CD')
     def __init__(self, codigo, funcion):
         self.codigo = codigo
         self.ejecutar = funcion
