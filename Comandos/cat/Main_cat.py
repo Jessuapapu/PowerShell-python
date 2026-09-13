@@ -10,6 +10,8 @@ class Comando_cat(Comando):
         Ejemplos:
             cat archivo.txt
             cat archivo.txt archivo2.txt
+            cat Comandos/cat/archivo2.txt
+            cat Comandos/cat/archivo2.txt archivo.txt
     """
 
     def __init__(self, StrArgumento: list):
