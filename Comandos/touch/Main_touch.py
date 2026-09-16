@@ -1,7 +1,6 @@
 import os  # comprobar si la ruta es carpeta y si el directorio padre existe
 from ..Plantilla import Comando  # clase base compartida por todos los comandos
 
-
 class Comando_touch(Comando):
     """
         Uso esperado:
@@ -33,7 +32,7 @@ class Comando_touch(Comando):
                 MsjException="Uso: touch <archivo>"
             )
 
-            # Primer (y unico) grupo del match: ruta/nombre del archivo
+            # tomar el primer grupo de la tupla retornada por _validacion_argumentos que guarda la ruta/nombre del archivo
             self.archivo = Argumentos[0]
 
             # Tras validar, se crea/actualiza el archivo de inmediato

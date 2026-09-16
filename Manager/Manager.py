@@ -3,7 +3,7 @@ from Comandos.ls import Main_ls
 from Comandos.python import Main_python
 from Comandos.cat import Main_cat
 from Comandos.touch import Main_touch
-
+from Comandos.mkdir import Main_mkdir
 
 class ComandosManager(Enum):
     ls = ('LS', lambda Argumento: Main_ls.Comando_ls(Argumento))
@@ -12,7 +12,8 @@ class ComandosManager(Enum):
     python = ("PYTHON", lambda Argumento: Main_python.Comando_python(Argumento))
     cat = ("CAT", lambda Argumento: Main_cat.Comando_cat(Argumento))
     touch = ("TOUCH", lambda Argumento: Main_touch.Comando_touch(Argumento))
-    
+    mkdir = ("MKDIR", lambda Argumento: Main_mkdir.Comando_mkdir(Argumento))
+
     def __init__(self, codigo, funcion):
         self.codigo = codigo
         self.ejecutar = funcion
