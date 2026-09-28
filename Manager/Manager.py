@@ -1,10 +1,12 @@
 from enum import Enum
 from Comandos.ls import Main_ls
+from Comandos.cd import Main_cd
 
 class ComandosManager(Enum):
     ls = ('LS', lambda Argumento: Main_ls.Comando_ls(Argumento))
     dirs = ('DIR', lambda Argumento: Main_ls.Comando_ls(Argumento))
-    #cd = ('CD')
+    cd = ('CD', lambda Argmento: Main_cd.Comando_cd(Argmento))
+    
     def __init__(self, codigo, funcion):
         self.codigo = codigo
         self.ejecutar = funcion

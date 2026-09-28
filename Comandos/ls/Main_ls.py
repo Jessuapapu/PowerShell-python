@@ -28,7 +28,6 @@ class Comando_ls(Comando):
         # ls -Directory
         self.Regex = r"""^(?:ls|dir)(?P<ruta>(\s(?:"|\')[a-zA-Z]:(\\|/|\\\\)[\w\\/ .-]+(?:"|\')|\s\*))?(?:(?P<r>\s-r)?|(?P<Filter>\s-[Ff]ilter\s([\*\.\w\*])*)?|(?P<Dir>\s-Directory)?)*$"""
         
-        self.RegexRuta = r'("|\')[a-zA-Z]:(\\|/|\\\\)[\w(\\|/|\\\\)]+(| [\w\.\d]+| )("|\')'
         try:
             Argumentos = self._validacion_argumentos(StrArgumentos=StrArgumento,regex=self.Regex, 
             MsjException="Error en los argumentos, Ejemplo de uso ls [[-Path] <string[]>] [-r] [[-Filter] <string>] [-Include <string[]>] [-Directory]]")
@@ -55,28 +54,32 @@ class Comando_ls(Comando):
         lista_archivos_info = []
 
         for archivo in lista_archivos:
-            tmpArchivo = Archivo(nombre=archivo,path=ruta)
+            try:
+                tmpArchivo = Archivo(nombre=archivo,path=ruta)
 
-            if SoloCarpeta and tmpArchivo.extension != 'CARPETA':
+                if SoloCarpeta and tmpArchivo.extension != 'CARPETA':
+                    continue
+
+                if filtro and not re.match(f"^{filtro.replace('.', r'\.').replace('*', '.*')}$", archivo, re.IGNORECASE):
+                    continue
+
+                lista_archivos_info.append(tmpArchivo)
+            except Exception as e:
+                print(e)
                 continue
 
-            if filtro and not re.match(f"^{filtro.replace('.', r'\.').replace('*', '.*')}$", archivo, re.IGNORECASE):
-                continue
-
-            lista_archivos_info.append(tmpArchivo)
-
-        print(table2ascii.table2ascii(
-            header=["permisos","Nombre","tamaño",'fecha',"extension"],
-            body=[archivo.to_string() for archivo in lista_archivos_info]
-        ))
+        if len(lista_archivos_info) > 0:
+            print(table2ascii.table2ascii(
+                header=["permisos","Nombre","tamaño",'fecha',"extension"],
+                body=[archivo.to_string() for archivo in lista_archivos_info]
+            ))
 
         return lista_archivos_info
     
     def EmpaquetarArgumentos(self, ArgumentosMatch: re.Match) -> dict:
         
         Argumentos:list[str] = ArgumentosMatch.groupdict()
-
-        path = singlepath.pathActual if not Argumentos['ruta'] else Argumentos['ruta'].replace('"','').strip()
+        path = singlepath.pathActual if not Argumentos['ruta'] else Argumentos['ruta'].replace('"','')[1:]
         recursivo = True if Argumentos['r'] else False
         SoloDirectorios = True if Argumentos['Dir'] else False 
         filtro: str = Argumentos['Filter'].replace('-Filter','').strip() if Argumentos['Filter'] else None

@@ -2,12 +2,13 @@ from clases import PathsSingleton
 from Manager.Manager import ComandosManager
 import os
 
+path = PathsSingleton.SingletonPath()
+
 def main():
 # Comando que deseas ejecutar en PowerShell
-    diseño = PathsSingleton.SingletonPath().disenio
     while True:
 
-        Argumentos = input(diseño)
+        Argumentos = input(path.disenio)
         try:
             if Argumentos.upper() in ('EXIT','SALIR'):
                 return

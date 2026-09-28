@@ -10,7 +10,14 @@ class SingletonPath:
 
     def __init__(self):
         self.pathInicial = os.getcwd().split('\\')
-    
-        self.disenio = 'PS ' + self.pathInicial[0]+'\\' + self.pathInicial[1] + '\\' + self.pathInicial[2] + '> '
-        self.pathActual = self.pathInicial[0]+ '\\' + self.pathInicial[1] + '\\' + self.pathInicial[2]
         
+        self.disenio = 'PS ' + "\\".join(self.pathInicial[:3]) + '> '
+        self.pathActual = self.pathInicial[0]+ '\\' + self.pathInicial[1] + '\\' + self.pathInicial[2]
+        self.pathAnterior = None 
+        self.pathHome = "\\".join(self.pathInicial[:3])
+
+    def cambiarRuta(self,Ruta: str):
+        self.pathAnterior = self.pathActual   
+        self.pathActual = Ruta
+
+        self.disenio = 'PS ' + self.pathActual.replace('\\\\','\\').replace("/","\\") + '> '
