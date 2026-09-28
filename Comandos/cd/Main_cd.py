@@ -1,10 +1,14 @@
 import os
+from ..Plantilla import Comando
+from clases.PathsSingleton import SingletonPath
 
-def mover_a_carpeta(ruta, carpeta: str | None):
-    if not os.path.exists(ruta) or not os.path.isdir(ruta):
-        return False
+class Comando_cd(Comando):
 
-    if not os.path.exists(ruta+carpeta) or not os.path.isdir(ruta+carpeta):
-        return False
+    def mover_a_carpeta(ruta, carpeta: str | None):
+        if not os.path.exists(ruta) or not os.path.isdir(ruta):
+            return False
+    
+        if not os.path.exists(ruta+carpeta) or not os.path.isdir(ruta+carpeta):
+            return False
 
     

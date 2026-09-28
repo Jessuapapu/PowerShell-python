@@ -10,7 +10,12 @@ class Comando_ls(Comando):
     r""" 
         ls [[-Path] <string[]>] [-r] [[-Filter] <string>] [-Include <string[]>] [-Directory]]
 
-        Regex = ^ls (("[a-zA-Z]:\\[\w\\]+")|\*|-r|)( -r|)(( -Filter \*(\.[\w]+|[\w]+\*))|)( -Directory|)$
+        Regex = ^
+        (?:ls|dir)
+        (?P<ruta>(\s(?:"|\')[a-zA-Z]:(\\|/|\\\\)[\w\\/ .-]+(?:"|\')|\s\*))?
+        (?:
+            (?P<r>\s-r)? | (?P<Filter>\s-Filter\s\*(\.[\w]+|[\w]+\*))? | (?P<Dir>\s-Directory)?)*
+        $
 
         ls o dir la misma vaina xd
     """
@@ -21,25 +26,29 @@ class Comando_ls(Comando):
         # ls * -r -Filter *.Hol -Directory
         # ls -r -Filter *Hola*
         # ls -Directory
-        self.Regex = r"""^(?:ls|dir)(?P<ruta>(\s(?:"|\')[a-zA-Z]:(\\|/|\\\\)[\w\\/ .-]+(?:"|\')|\s\*))?(?:(?P<r>\s-r)?|(?P<Filter>\s-Filter\s\*(\.[\w]+|[\w]+\*))?|(?P<Dir>\s-Directory)?)*$"""
+        self.Regex = r"""^(?:ls|dir)(?P<ruta>(\s(?:"|\')[a-zA-Z]:(\\|/|\\\\)[\w\\/ .-]+(?:"|\')|\s\*))?(?:(?P<r>\s-r)?|(?P<Filter>\s-[Ff]ilter\s([\*\.\w\*])*)?|(?P<Dir>\s-Directory)?)*$"""
         
         self.RegexRuta = r'("|\')[a-zA-Z]:(\\|/|\\\\)[\w(\\|/|\\\\)]+(| [\w\.\d]+| )("|\')'
         try:
             Argumentos = self._validacion_argumentos(StrArgumentos=StrArgumento,regex=self.Regex, 
             MsjException="Error en los argumentos, Ejemplo de uso ls [[-Path] <string[]>] [-r] [[-Filter] <string>] [-Include <string[]>] [-Directory]]")
+            
         except Exception as e:
             print(e)
             return
-
         self.listar_archivos(ruta=Argumentos['path'],recursivo=Argumentos['recursivo'],SoloCarpeta=Argumentos['SoloDir'], filtro=Argumentos['filtro'])
          
         
     def listar_archivos(self, ruta: str | None, recursivo: bool, filtro: str | None, SoloCarpeta: bool):
-        if not os.path.isdir(ruta) or not os.path.exists(ruta):
-            return None
+        try:
+            if not os.path.isdir(ruta) or not os.path.exists(ruta):
+                return None
+            
+        except Exception as e:
+            print(e)
+            return
 
         lista_archivos = os.listdir(ruta)
-
         if recursivo:
             lista_archivos.reverse()
 
@@ -63,20 +72,14 @@ class Comando_ls(Comando):
 
         return lista_archivos_info
     
-    def EmpaquetarArgumentos(self, Argumentos: tuple) -> dict:
-        path = singlepath.pathActual
+    def EmpaquetarArgumentos(self, ArgumentosMatch: re.Match) -> dict:
         
-        if re.match(r'("|\')[a-zA-Z]:(\\|/|\\\\)[\w(\\|/|\\\\)]+("|\')', Argumentos[2].strip()):
-            path = Argumentos[2].strip().replace('"','')
-        
-        recursivo = True if ' -r' in Argumentos else False
-        SoloDirectorios = True if ' -Directory' in Argumentos else False 
-        filtro = None 
+        Argumentos:list[str] = ArgumentosMatch.groupdict()
 
-        for Argumento in Argumentos[2:]:
-
-            if type(Argumento) == str and ' -FILTER' in Argumento.upper():
-                filtro = Argumento.split()[1]
+        path = singlepath.pathActual if not Argumentos['ruta'] else Argumentos['ruta'].replace('"','').strip()
+        recursivo = True if Argumentos['r'] else False
+        SoloDirectorios = True if Argumentos['Dir'] else False 
+        filtro: str = Argumentos['Filter'].replace('-Filter','').strip() if Argumentos['Filter'] else None
 
         return {
             'path': path,

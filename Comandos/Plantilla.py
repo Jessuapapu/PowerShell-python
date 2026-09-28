@@ -6,9 +6,8 @@ class Comando():
 
     def _validacion_argumentos(self, StrArgumentos: str, regex: str, MsjException: str):
         Argumentos = re.match(regex,StrArgumentos)
-    
         if Argumentos:
-            return self.EmpaquetarArgumentos(Argumentos.groups()) 
+            return self.EmpaquetarArgumentos(Argumentos) 
         
         return self.Excepcion(MsjException)
         
