@@ -21,5 +21,5 @@ class Comando():
     def Excepcion(self,msj):
         raise Exception(msj)
 
-    def EmpaquetarArgumentos(self) -> dict:
+    def EmpaquetarArgumentos(self, ArgumentosMatch: re.Match) -> dict:
         pass
