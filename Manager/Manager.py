@@ -4,11 +4,13 @@ from Comandos.python import Main_python
 from Comandos.cat import Main_cat
 from Comandos.touch import Main_touch
 from Comandos.mkdir import Main_mkdir
+from Comandos.cd import Main_cd
+
 
 class ComandosManager(Enum):
     ls = ('LS', lambda Argumento: Main_ls.Comando_ls(Argumento))
     dirs = ('DIR', lambda Argumento: Main_ls.Comando_ls(Argumento))
-    # cd = ('CD')
+    cd = ('CD', lambda Argmento: Main_cd.Comando_cd(Argmento))
     python = ("PYTHON", lambda Argumento: Main_python.Comando_python(Argumento))
     cat = ("CAT", lambda Argumento: Main_cat.Comando_cat(Argumento))
     touch = ("TOUCH", lambda Argumento: Main_touch.Comando_touch(Argumento))

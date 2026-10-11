@@ -1,4 +1,5 @@
 import os  # nos da funciones para manejar rutas y crear carpetas en el sistema
+import re
 from ..Plantilla import Comando  # clase base de la que heredamos validacion y Excepcion
 
 
@@ -18,10 +19,10 @@ class Comando_mkdir(Comando):
         # guardamos en self.Regex el patron que acepta este comando:
         # - rutas absolutas de Windows en C: (ej: C:\Users\User\Desktop\new_folder)
         # - o rutas relativas tipo new_folder / new_folder/sub_folder
-        # el grupo (...) es lo que despues vamos a sacar como Argumentos[0]
+        # el grupo (?P<ruta>...) se empaqueta despues en EmpaquetarArgumentos
         self.Regex = (
             r'^mkdir\s+'
-            r'('
+            r'(?P<ruta>'
             r'[Cc]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+'
             r'|'
             r'[\w.\\/-]+'
@@ -30,8 +31,8 @@ class Comando_mkdir(Comando):
 
         try:
             # Argumentos guarda lo que retorna _validacion_argumentos:
-            # si el texto del usuario hace match con el regex, nos da una tupla
-            # con los grupos capturados; si no, lanza Excepcion con el mensaje de uso
+            # si el texto del usuario hace match, EmpaquetarArgumentos arma un dict;
+            # si no, lanza Excepcion con el mensaje de uso
             Argumentos = self._validacion_argumentos(
                 StrArgumentos=StrArgumento,
                 regex=self.Regex,
@@ -39,10 +40,9 @@ class Comando_mkdir(Comando):
                 "Ejemplos: mkdir new_folder | mkdir C:\\Users\\User\\Desktop\\new_folder"
             )
 
-            # guardamos el valor de Argumentos[0] (la ruta del directorio capturada
-            # por el regex) en un atributo propio de la clase, para usarlo despues
-            # en ejecucion() sin volver a tocar Argumentos
-            self.directorio = Argumentos[0]
+            # guardamos Argumentos['ruta'] en un atributo propio de la clase,
+            # para usarlo despues en ejecucion()
+            self.directorio = Argumentos['ruta']
 
             # una vez validado y guardado, mandamos a crear la carpeta
             self.ejecucion()
@@ -50,6 +50,12 @@ class Comando_mkdir(Comando):
         # si algo fallo (uso incorrecto, ruta invalida, etc.), solo imprimimos el error
         except Exception as e:
             print(e)
+
+    def EmpaquetarArgumentos(self, ArgumentosMatch: re.Match) -> dict:
+        # Convierte el Match en un dict con la ruta del directorio
+        return {
+            'ruta': ArgumentosMatch.group('ruta')
+        }
 
     def ejecucion(self):
         # en ruta se guarda el valor retornado por os.path.normpath:
@@ -98,7 +104,7 @@ class Comando_mkdir(Comando):
             # (no crea padres intermedios; eso seria os.makedirs)
             os.mkdir(ruta)
         # OsError: problemas del sistema al crear (permisos, disco, etc.)
-        except OsError as e:
+        except OSError as e:
             self.Excepcion(f"No se pudo crear {ruta} - {e}")
 
         # confirmamos al usuario que la carpeta quedo creada

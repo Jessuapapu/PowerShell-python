@@ -1,4 +1,5 @@
 import os  # comprobar existencia y si la ruta es un archivo
+import re
 from ..Plantilla import Comando  # clase base compartida por todos los comandos
 
 
@@ -12,7 +13,7 @@ class Comando_cat(Comando):
             cat archivo.txt archivo2.txt
             cat Comandos/cat/archivo2.txt
             cat Comandos/cat/archivo2.txt archivo.txt
-            cat C:\Users\usuario\a.txt archivo.txt
+            cat C:\\Users\\usuario\\a.txt archivo.txt
     """
 
     def __init__(self, StrArgumento: list):
@@ -21,7 +22,7 @@ class Comando_cat(Comando):
 
         self.Regex = (
             r'^cat\s+'
-            r'('
+            r'(?P<archivos>'
             r'(?:'
             r'[Cc]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+'
             r'|'
@@ -39,7 +40,7 @@ class Comando_cat(Comando):
 
         try:
             # Valida la entrada con el regex (metodo heredado de Plantilla).
-            # Si coincide, Argumentos son los grupos capturados;
+            # Si coincide, Argumentos es el dict de EmpaquetarArgumentos;
             # si no, lanza Excepcion con el mensaje de uso.
             Argumentos = self._validacion_argumentos(
                 StrArgumentos=StrArgumento,
@@ -47,9 +48,8 @@ class Comando_cat(Comando):
                 MsjException="Uso: cat <archivo> [archivo...]"
             )
 
-            # Primer grupo del match: todos los archivos juntos en un solo string.
-            # split() los separa en una lista para recorrerlos uno por uno.
-            self.archivos = Argumentos[0].split()
+            # lista de archivos ya separada en EmpaquetarArgumentos
+            self.archivos = Argumentos['archivos']
 
             # Tras validar, se muestra el contenido de inmediato
             self.ejecucion()
@@ -57,6 +57,13 @@ class Comando_cat(Comando):
         # Cualquier error de validacion o de lectura se imprime aqui
         except Exception as e:
             print(e)
+
+    def EmpaquetarArgumentos(self, ArgumentosMatch: re.Match) -> dict:
+        # Convierte el Match en un dict: split() separa las rutas en una lista
+        return {
+            'archivos': ArgumentosMatch.group('archivos').split()
+        }
+
 
     def ejecucion(self):
         # Recorre cada ruta pedida por el usuario

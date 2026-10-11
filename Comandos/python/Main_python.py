@@ -1,10 +1,11 @@
 import os  # comprobar existencia del .py y obtener el cwd del proceso
+import re
 import subprocess  # lanzar el interprete de Python como proceso externo
 from ..Plantilla import Comando  # clase base compartida por todos los comandos
 
 
 class Comando_python(Comando):
-    """
+    r"""
         Uso esperado:
             python <script.py>
 
@@ -19,7 +20,7 @@ class Comando_python(Comando):
 
         self.Regex = (
             r'^python\s+'
-            r'('
+            r'(?P<ruta>'
             r'[Cc]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+\.py'
             r'|'
             r'[\w.\\/-]+\.py'
@@ -28,7 +29,7 @@ class Comando_python(Comando):
 
         try:
             # Valida la entrada con el regex (metodo heredado de Plantilla).
-            # Si coincide, Argumentos son los grupos capturados;
+            # Si coincide, Argumentos es el dict de EmpaquetarArgumentos;
             # si no, lanza Excepcion con el mensaje de uso.
             Argumentos = self._validacion_argumentos(
                 StrArgumentos=StrArgumento,
@@ -36,15 +37,21 @@ class Comando_python(Comando):
                 MsjException="Error, uso: python <script.py>"
             )
 
-            # Primer (y unico) grupo del match: ruta del archivo .py
-            self.script = Argumentos[0]
+            # ruta del script ya empaquetada en el dict
+            self.script = Argumentos['ruta']
 
             # Tras validar, se ejecuta el script de inmediato
             self.ejecucion()
 
         # Excepcion viene de Plantilla: eleva un Exception con el mensaje
-        except self.Excepcion as e:
+        except Exception as e:
             print(e)
+
+    def EmpaquetarArgumentos(self, ArgumentosMatch: re.Match) -> dict:
+        # Convierte el Match en un dict con la ruta del .py
+        return {
+            'ruta': ArgumentosMatch.group('ruta')
+        }
 
     def ejecucion(self):
         # Verifica que el archivo exista en el directorio actual (o ruta dada)

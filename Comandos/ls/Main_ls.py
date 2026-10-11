@@ -1,13 +1,21 @@
 import os
 from clases.archivos import Archivo
+from clases.PathsSingleton import SingletonPath
 import table2ascii
 from ..Plantilla import Comando
+import re 
 
+singlepath = SingletonPath()
 class Comando_ls(Comando):
-    """ 
+    r""" 
         ls [[-Path] <string[]>] [-r] [[-Filter] <string>] [-Include <string[]>] [-Directory]]
 
-        Regex = ^ls (("[a-zA-Z]:\\[\w\\]+")|\*|-r|)( -r|)(( -Filter \*(\.[\w]+|[\w]+\*))|)( -Directory|)$
+        Regex = ^
+        (?:ls|dir)
+        (?P<ruta>(\s(?:"|\')[a-zA-Z]:(\\|/|\\\\)[\w\\/ .-]+(?:"|\')|\s\*))?
+        (?:
+            (?P<r>\s-r)? | (?P<Filter>\s-Filter\s\*(\.[\w]+|[\w]+\*))? | (?P<Dir>\s-Directory)?)*
+        $
 
         ls o dir la misma vaina xd
     """
@@ -18,36 +26,68 @@ class Comando_ls(Comando):
         # ls * -r -Filter *.Hol -Directory
         # ls -r -Filter *Hola*
         # ls -Directory
-        self.Regex = r'^(ls|dir)((( "[a-zA-Z]:\\[\w\\]+")|\*|-r|)( -r|)(( -Filter \*(\.[\w]+|[\w]+\*))|)( -Directory|)|)$'
+        self.Regex = r"""^(?:ls|dir)(?P<ruta>(\s(?:"|\')[a-zA-Z]:(\\|/|\\\\)[\w\\/ .-]+(?:"|\')|\s\*))?(?:(?P<r>\s-r)?|(?P<Filter>\s-[Ff]ilter\s([\*\.\w\*])*)?|(?P<Dir>\s-Directory)?)*$"""
+        
         try:
             Argumentos = self._validacion_argumentos(StrArgumentos=StrArgumento,regex=self.Regex, 
             MsjException="Error en los argumentos, Ejemplo de uso ls [[-Path] <string[]>] [-r] [[-Filter] <string>] [-Include <string[]>] [-Directory]]")
-            print(Argumentos)
+            
         except Exception as e:
             print(e)
+            return
+        self.listar_archivos(ruta=Argumentos['path'],recursivo=Argumentos['recursivo'],SoloCarpeta=Argumentos['SoloDir'], filtro=Argumentos['filtro'])
+         
+        
+    def listar_archivos(self, ruta: str | None, recursivo: bool, filtro: str | None, SoloCarpeta: bool):
+        try:
+            if not os.path.isdir(ruta) or not os.path.exists(ruta):
+                return None
             
- 
-        
-        
-        
-
-        
-    def listar_archivos(ruta):
-        if not os.path.isdir(ruta) or not os.path.exists(ruta):
-            return None
+        except Exception as e:
+            print(e)
+            return
 
         lista_archivos = os.listdir(ruta)
+        if recursivo:
+            lista_archivos.reverse()
+
         lista_archivos_info = []
 
         for archivo in lista_archivos:
-            lista_archivos_info.append(Archivo(nombre=archivo,path=ruta))
+            try:
+                tmpArchivo = Archivo(nombre=archivo,path=ruta)
 
-        print(table2ascii.table2ascii(
-            header=["permisos","Nombre","tamaño",'fecha',"extension"],
-            body=[archivo.to_string() for archivo in lista_archivos_info]
-        ))
+                if SoloCarpeta and tmpArchivo.extension != 'CARPETA':
+                    continue
+
+                if filtro and not re.match(f"^{filtro.replace('.', r'\.').replace('*', '.*')}$", archivo, re.IGNORECASE):
+                    continue
+
+                lista_archivos_info.append(tmpArchivo)
+            except Exception as e:
+                print(e)
+                continue
+
+        if len(lista_archivos_info) > 0:
+            print(table2ascii.table2ascii(
+                header=["permisos","Nombre","tamaño",'fecha',"extension"],
+                body=[archivo.to_string() for archivo in lista_archivos_info]
+            ))
 
         return lista_archivos_info
     
+    def EmpaquetarArgumentos(self, ArgumentosMatch: re.Match) -> dict:
+        
+        Argumentos:list[str] = ArgumentosMatch.groupdict()
+        path = singlepath.pathActual if not Argumentos['ruta'] else Argumentos['ruta'].replace('"','')[1:]
+        recursivo = True if Argumentos['r'] else False
+        SoloDirectorios = True if Argumentos['Dir'] else False 
+        filtro: str = Argumentos['Filter'].replace('-Filter','').strip() if Argumentos['Filter'] else None
 
+        return {
+            'path': path,
+            'recursivo': recursivo,
+            'SoloDir': SoloDirectorios,
+            'filtro': filtro
+        } 
  

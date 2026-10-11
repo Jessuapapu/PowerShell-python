@@ -1,19 +1,24 @@
-
+from clases import PathsSingleton
 from Manager.Manager import ComandosManager
 import os
 
+path = PathsSingleton.SingletonPath()
+
 def main():
 # Comando que deseas ejecutar en PowerShell
-
-    pathInicial = os.getcwd().split('\\')
-
-    disenio = 'PS ' + pathInicial[0]+'\\' + pathInicial[1] + '\\' + pathInicial[2] + '> '
-    path = pathInicial[0]+'\\' + pathInicial[1] + '\\' + pathInicial[2]
     while True:
-        Argumentos = input(disenio)
-        ArgumentoComando = Argumentos.split(' ')
-        comando = ComandosManager.desde_string(ArgumentoComando[0])
-        comando.ejecutar(Argumentos)
-        
+
+        Argumentos = input(path.disenio)
+        try:
+            if Argumentos.upper() in ('EXIT','SALIR'):
+                return
+            
+            ArgumentoComando = Argumentos.split(' ')
+            comando = ComandosManager.desde_string(ArgumentoComando[0])
+
+            comando.ejecutar(Argumentos)
+        except Exception as e:
+            print(e)
+
 if "__main__":
     main()

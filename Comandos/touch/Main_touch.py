@@ -1,4 +1,5 @@
 import os  # comprobar si la ruta es carpeta y si el directorio padre existe
+import re
 from ..Plantilla import Comando  # clase base compartida por todos los comandos
 
 class Comando_touch(Comando):
@@ -18,7 +19,7 @@ class Comando_touch(Comando):
 
         self.Regex = (
             r'^touch\s+'
-            r'('
+            r'(?P<ruta>'
             r'[Cc]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+'
             r'|'
             r'[\w.\\/-]+'
@@ -27,7 +28,7 @@ class Comando_touch(Comando):
 
         try:
             # Valida la entrada con el regex (metodo heredado de Plantilla).
-            # Si coincide, Argumentos son los grupos capturados;
+            # Si coincide, Argumentos es el dict de EmpaquetarArgumentos;
             # si no, lanza Excepcion con el mensaje de uso.
             Argumentos = self._validacion_argumentos(
                 StrArgumentos=StrArgumento,
@@ -35,8 +36,8 @@ class Comando_touch(Comando):
                 MsjException="Uso: touch <archivo>"
             )
 
-            # tomar el primer grupo de la tupla retornada por _validacion_argumentos que guarda la ruta/nombre del archivo
-            self.archivo = Argumentos[0]
+            # ruta del archivo ya empaquetada en el dict
+            self.archivo = Argumentos['ruta']
 
             # Tras validar, se crea/actualiza el archivo de inmediato
             self.ejecucion()
@@ -44,6 +45,13 @@ class Comando_touch(Comando):
         # Cualquier error de validacion o de creacion se imprime aqui
         except Exception as e:
             print(e)
+
+    def EmpaquetarArgumentos(self, ArgumentosMatch: re.Match) -> dict:
+        # Convierte el Match en un dict con la ruta lista para usar
+        return {
+            'ruta': ArgumentosMatch.group('ruta')
+        }
+
 
     def ejecucion(self):
         # Si la ruta ya existe y es una carpeta, no se puede "tocar" como archivo
