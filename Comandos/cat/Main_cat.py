@@ -12,19 +12,30 @@ class Comando_cat(Comando):
             cat archivo.txt archivo2.txt
             cat Comandos/cat/archivo2.txt
             cat Comandos/cat/archivo2.txt archivo.txt
+            cat C:\Users\usuario\a.txt archivo.txt
     """
 
     def __init__(self, StrArgumento: list):
         # Inicializa la plantilla base (Comando)
         super().__init__(StrArgumentos=StrArgumento)
 
-        # Regex del comando:
-        # ^cat\s+  -> empieza con "cat" + espacios
-        # ([\w.\\/-]+(?:\s+[\w.\\/-]+)*) -> captura uno o mas archivos/rutas
-        #   [\w.\\/-]+ -> nombre o ruta (letras, numeros, ., \, /, -)
-        #   (?:\s+[\w.\\/-]+)* -> opcionalmente mas archivos separados por espacio
-        # $ -> no acepta nada mas despues de los archivos
-        self.Regex = r'^cat\s+([\w.\\/-]+(?:\s+[\w.\\/-]+)*)$'
+        self.Regex = (
+            r'^cat\s+'
+            r'('
+            r'(?:'
+            r'[Cc]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+'
+            r'|'
+            r'[\w.\\/-]+'
+            r')'
+            r'(?:\s+'
+            r'(?:'
+            r'[Cc]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+'
+            r'|'
+            r'[\w.\\/-]+'
+            r')'
+            r')*'
+            r')$'
+        )
 
         try:
             # Valida la entrada con el regex (metodo heredado de Plantilla).

@@ -10,17 +10,20 @@ class Comando_touch(Comando):
             touch archivo.txt
             touch Comandos/touch/txt2.txt
     """
+    # touch C:\Users\usuario\Desktop\archivo.txt
 
     def __init__(self, StrArgumento: list):
         # Inicializa la plantilla base (Comando)
         super().__init__(StrArgumentos=StrArgumento)
 
-        # Regex del comando:
-        # ^touch\s+  -> empieza con "touch" + espacios
-        # ([\w.\\/-]+) -> captura la ruta/nombre del archivo
-        #   [\w.\\/-]+ -> letras, numeros, ., \, /, -
-        # $ -> no acepta nada mas despues del archivo
-        self.Regex = r'^touch\s+([\w.\\/-]+)$'
+        self.Regex = (
+            r'^touch\s+'
+            r'('
+            r'[Cc]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+'
+            r'|'
+            r'[\w.\\/-]+'
+            r')$'
+        )
 
         try:
             # Valida la entrada con el regex (metodo heredado de Plantilla).

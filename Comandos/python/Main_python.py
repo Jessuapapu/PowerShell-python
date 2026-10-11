@@ -10,17 +10,21 @@ class Comando_python(Comando):
 
         Ejemplo:
             python hello.py
+            python C:\proyectos-uni\PowerShell-python\prueba.py
     """
 
     def __init__(self, StrArgumento: list):
         # Inicializa la plantilla base (Comando)
         super().__init__(StrArgumentos=StrArgumento)
 
-        # Regex del comando:
-        # ^python\s+  -> empieza con "python" + espacios
-        # ([\w.\\/-]+\.py) -> captura la ruta/nombre del script .py
-        # $ -> no acepta nada mas despues del script
-        self.Regex = r'^python\s+([\w.\\/-]+\.py)$'
+        self.Regex = (
+            r'^python\s+'
+            r'('
+            r'[Cc]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+\.py'
+            r'|'
+            r'[\w.\\/-]+\.py'
+            r')$'
+        )
 
         try:
             # Valida la entrada con el regex (metodo heredado de Plantilla).
