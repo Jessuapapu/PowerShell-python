@@ -5,7 +5,7 @@ from Comandos.cat import Main_cat
 from Comandos.touch import Main_touch
 from Comandos.mkdir import Main_mkdir
 from Comandos.cd import Main_cd
-
+from Comandos.neofetch import Main_neoftech
 
 class ComandosManager(Enum):
     ls = ('LS', lambda Argumento: Main_ls.Comando_ls(Argumento))
@@ -15,6 +15,7 @@ class ComandosManager(Enum):
     cat = ("CAT", lambda Argumento: Main_cat.Comando_cat(Argumento))
     touch = ("TOUCH", lambda Argumento: Main_touch.Comando_touch(Argumento))
     mkdir = ("MKDIR", lambda Argumento: Main_mkdir.Comando_mkdir(Argumento))
+    neo = ("NEOFETCH", lambda Argumento: Main_neoftech.Comando_neofetch(Argumento))
 
     def __init__(self, codigo, funcion):
         self.codigo = codigo

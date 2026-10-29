@@ -6,6 +6,7 @@ path = PathsSingleton.SingletonPath()
 
 def main():
 # Comando que deseas ejecutar en PowerShell
+    limpiar_consola()
     while True:
 
         Argumentos = input(path.disenio)
@@ -20,5 +21,16 @@ def main():
         except Exception as e:
             print(e)
 
+def limpiar_consola():
+  # 'nt' corresponde a Windows
+  if os.name == 'nt':
+    os.system('cls')
+  # 'posix' corresponde a Linux y macOS
+  else:
+    os.system('clear')
+
+
+# Para usar la función:
+limpiar_consola()
 if "__main__":
     main()
